@@ -1,636 +1,735 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="uk" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chult Survival Tracker — D&D 5e</title>
+    <title>Chult Expedition Tracker — Tomb of Annihilation</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        jungle: {
+                            950: '#050c07',
+                            900: '#0a170e',
+                            800: '#112618',
+                            700: '#1a3a24',
+                            600: '#275736',
+                        },
+                        amber: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        },
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    fontFamily: {
+                        fantasy: ['Cinzel', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --bg-dark: #0b130e;
-            --panel-bg: #142219;
-            --panel-border: #233a2b;
-            --accent-gold: #d4af37;
-            --accent-green: #2e7d32;
-            --accent-red: #c62828;
-            --accent-blue: #0288d1;
-            --text-main: #e0e8e2;
-            --text-muted: #8ca392;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-            padding-bottom: 40px;
+            background-color: #050c07;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.07) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(5, 12, 7, 0.8) 0%, #050c07 100%);
+            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
         }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--accent-gold);
-            padding-bottom: 10px;
-            margin-bottom: 14px;
+        /* Glassmorphic card design */
+        .glass-card {
+            background: rgba(17, 38, 24, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+            border-radius: 1.25rem;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        h1 {
-            font-size: 1.2rem;
-            color: var(--accent-gold);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .glass-card:hover {
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 15px rgba(16, 185, 129, 0.08);
         }
 
-        .lang-btn {
-            background: var(--panel-border);
-            color: var(--accent-gold);
-            border: 1px solid var(--accent-gold);
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
+        .glass-input {
+            background: rgba(5, 12, 7, 0.6);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            color: #f1f5f9;
+            transition: all 0.2s ease;
         }
 
-        .card {
-            background: var(--panel-bg);
-            border: 1px solid var(--panel-border);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        .glass-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
+            background: rgba(5, 12, 7, 0.85);
         }
 
-        .card-title {
-            font-size: 0.9rem;
-            color: var(--accent-gold);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Modern CTA Advance Day Button */
+        .btn-advance {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
         }
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+        .btn-advance::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            transform: scale(0);
+            transition: transform 0.5s ease;
         }
 
-        .res-box {
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--panel-border);
-            border-radius: 6px;
-            padding: 8px;
-            text-align: center;
+        .btn-advance:hover::before {
+            transform: scale(1);
         }
 
-        .res-value {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #fff;
-            margin: 4px 0;
+        .btn-advance:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 15px 35px -5px rgba(245, 158, 11, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
-        .btn-group-sm {
-            display: flex;
-            justify-content: center;
-            gap: 4px;
-            margin-top: 4px;
+        .btn-advance:active {
+            transform: translateY(1px) scale(0.98);
+            box-shadow: 0 5px 15px -3px rgba(245, 158, 11, 0.4);
         }
 
-        .btn-sm {
-            background: var(--panel-border);
-            color: var(--text-main);
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            cursor: pointer;
+        /* Subtle scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
         }
-
-        .btn-sm:active {
-            background: var(--accent-gold);
-            color: #000;
+        ::-webkit-scrollbar-track {
+            background: rgba(5, 12, 7, 0.5);
         }
-
-        select, input[type="text"], input[type="number"] {
-            width: 100%;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--panel-border);
-            color: var(--text-main);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
+        ::-webkit-scrollbar-thumb {
+            background: rgba(39, 87, 54, 0.6);
+            border-radius: 9999px;
         }
-
-        .btn-main {
-            width: 100%;
-            background: linear-gradient(180deg, #388e3c, #1b5e20);
-            color: #fff;
-            border: 1px solid #4caf50;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-            margin-top: 6px;
-        }
-
-        .btn-main:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: var(--panel-border);
-            color: var(--text-main);
-            border: 1px solid var(--text-muted);
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            cursor: pointer;
-        }
-
-        .roster-list {
-            list-style: none;
-            margin-bottom: 10px;
-        }
-
-        .roster-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.2);
-            padding: 6px 10px;
-            border-radius: 4px;
-            margin-bottom: 6px;
-            border-left: 3px solid var(--accent-gold);
-        }
-
-        .roster-info {
-            font-size: 0.85rem;
-        }
-
-        .roster-info small {
-            color: var(--text-muted);
-            display: block;
-        }
-
-        .btn-del {
-            background: transparent;
-            color: var(--accent-red);
-            border: none;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 0 6px;
-        }
-
-        .log-box {
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--panel-border);
-            border-radius: 4px;
-            padding: 8px;
-            height: 120px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .log-entry {
-            margin-bottom: 4px;
-            border-bottom: 1px dashed rgba(255,255,255,0.1);
-            padding-bottom: 2px;
-        }
-
-        .badge {
-            background: var(--accent-gold);
-            color: #000;
-            padding: 2px 6px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
         }
     </style>
 </head>
-<body>
+<body class="p-3 sm:p-5 md:p-8 max-w-4xl mx-auto flex flex-col justify-between">
 
-    <header>
-        <h1>Chult Tracker</h1>
-        <button class="lang-btn" onclick="toggleLanguage()" id="langBtn">EN</button>
+    <!-- Top Header Navigation -->
+    <header class="glass-card p-4 sm:p-5 mb-6 flex flex-wrap justify-between items-center gap-4 border-b-2 border-amber-500/30">
+        <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-jungle-950 font-black shadow-lg shadow-amber-500/20">
+                <i class="fa-solid fa-skull text-xl"></i>
+            </div>
+            <div>
+                <h1 class="font-fantasy font-extrabold text-lg sm:text-xl tracking-wider text-amber-400 leading-tight">
+                    TOMB OF ANNIHILATION
+                </h1>
+                <p id="ui-subtitle" class="text-[11px] text-emerald-400/90 font-semibold uppercase tracking-widest">
+                    ТРЕКЕР ЕКСПЕДИЦІЇ ЧУЛТУ
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2.5 ml-auto">
+            <!-- Language Switcher -->
+            <button onclick="toggleLanguage()" class="px-3 py-1.5 rounded-xl bg-jungle-900/80 border border-emerald-500/30 hover:border-amber-400 text-amber-400 font-bold text-xs transition-all flex items-center gap-1.5 shadow-inner">
+                <i class="fa-solid fa-globe text-xs"></i>
+                <span id="langDisplay">UA</span>
+            </button>
+
+            <!-- Undo Button -->
+            <button onclick="undoLastDay()" class="p-2.5 rounded-xl bg-jungle-900/80 border border-emerald-500/30 hover:border-amber-400 text-stone-300 hover:text-amber-400 text-xs transition-all" title="Скасувати останній день (Undo)">
+                <i class="fa-solid fa-rotate-left text-sm"></i>
+            </button>
+        </div>
     </header>
 
-    <!-- STATUS & DAY ADVANCE -->
-    <div class="card">
-        <div class="card-title">
-            <span><span id="t-day">День</span> <strong id="dayVal" style="color:var(--accent-gold);">1</strong></span>
-            <span class="badge" id="weatherBadge">Сонячно</span>
-        </div>
-        
-        <div class="grid-2" style="margin-bottom: 10px;">
-            <div class="res-box">
-                <div style="font-size:0.8rem; color:var(--text-muted);" id="t-food">Їжа (Раціони)</div>
-                <div class="res-value" id="foodVal">0</div>
-                <div class="btn-group-sm">
-                    <button class="btn-sm" onclick="addFood(-5)">-5</button>
-                    <button class="btn-sm" onclick="addFood(-1)">-1</button>
-                    <button class="btn-sm" onclick="addFood(1)">+1</button>
-                    <button class="btn-sm" onclick="addFood(5)">+5</button>
+    <!-- Main Content Container -->
+    <main class="space-y-6">
+
+        <!-- ADVANCE DAY HERO CARD -->
+        <section class="glass-card p-5 sm:p-6 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-5">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-emerald-400">
+                        <i class="fa-solid fa-compass"></i>
+                        <span id="ui-current-day-label">Поточний День</span>
+                    </div>
+                    <div class="flex items-baseline gap-2">
+                        <span class="text-4xl sm:text-5xl font-fantasy font-black text-amber-400" id="dayDisplay">1</span>
+                        <span class="text-xs text-stone-400 font-medium" id="ui-day-count-suffix">днів у джунглях</span>
+                    </div>
+                </div>
+
+                <!-- Modern Glowing CTA Button -->
+                <button onclick="advanceDay()" class="btn-advance px-7 py-4 rounded-2xl text-jungle-950 font-extrabold font-fantasy tracking-wider text-sm sm:text-base flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-sun-plant-wilt text-lg"></i>
+                    <span id="ui-btn-advance">НАСТУПНИЙ ДЕНЬ</span>
+                </button>
+            </div>
+
+            <!-- Daily Needed Rate Summary -->
+            <div class="mt-5 pt-4 border-t border-emerald-500/10 grid grid-cols-2 gap-3">
+                <div class="bg-jungle-950/50 p-3 rounded-xl border border-emerald-800/30 flex items-center justify-between">
+                    <span id="ui-need-food" class="text-xs text-stone-400 font-medium">Потреба їжі:</span>
+                    <span id="dailyFoodNeed" class="text-sm font-bold text-amber-400">0 шт</span>
+                </div>
+                <div class="bg-jungle-950/50 p-3 rounded-xl border border-emerald-800/30 flex items-center justify-between">
+                    <span id="ui-need-water" class="text-xs text-stone-400 font-medium">Потреба води:</span>
+                    <span id="dailyWaterNeed" class="text-sm font-bold text-sky-400">0 гал</span>
                 </div>
             </div>
-            <div class="res-box">
-                <div style="font-size:0.8rem; color:var(--text-muted);" id="t-water">Вода (Галони)</div>
-                <div class="res-value" id="waterVal">0</div>
-                <div class="btn-group-sm">
-                    <button class="btn-sm" onclick="addWater(-5)">-5</button>
-                    <button class="btn-sm" onclick="addWater(-1)">-1</button>
-                    <button class="btn-sm" onclick="addWater(1)">+1</button>
-                    <button class="btn-sm" onclick="addWater(5)">+5</button>
+        </section>
+
+        <!-- RESOURCES CARDS GRID -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <!-- FOOD CARD -->
+            <div class="glass-card p-5 flex flex-col justify-between space-y-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 id="ui-food-title" class="text-xs font-bold uppercase tracking-wider text-stone-400">Сухі Раціони</h2>
+                        <div class="text-3xl font-fantasy font-bold text-amber-400 mt-1" id="foodDisplay">0</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-lg">
+                        <i class="fa-solid fa-bowl-food"></i>
+                    </div>
+                </div>
+
+                <!-- Quick adjustment controls -->
+                <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-emerald-950">
+                    <button onclick="changeResource('food', -5)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-amber-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">-5</button>
+                    <button onclick="changeResource('food', -1)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-amber-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">-1</button>
+                    <button onclick="changeResource('food', 1)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-amber-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">+1</button>
+                    <button onclick="changeResource('food', 5)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-amber-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">+5</button>
                 </div>
             </div>
+
+            <!-- WATER CARD -->
+            <div class="glass-card p-5 flex flex-col justify-between space-y-4">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 id="ui-water-title" class="text-xs font-bold uppercase tracking-wider text-stone-400">Питна Вода (Галони)</h2>
+                        <div class="text-3xl font-fantasy font-bold text-sky-400 mt-1" id="waterDisplay">0</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 text-lg">
+                        <i class="fa-solid fa-faucet-drip"></i>
+                    </div>
+                </div>
+
+                <!-- Quick adjustment controls -->
+                <div class="grid grid-cols-4 gap-1.5 pt-2 border-t border-emerald-950">
+                    <button onclick="changeResource('water', -5)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-sky-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">-5</button>
+                    <button onclick="changeResource('water', -1)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-sky-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">-1</button>
+                    <button onclick="changeResource('water', 1)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-sky-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">+1</button>
+                    <button onclick="changeResource('water', 5)" class="py-1.5 bg-jungle-950/80 hover:bg-stone-800 text-sky-400 rounded-lg text-xs font-bold transition-all border border-emerald-900/40">+5</button>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- WEIGHT CALCULATOR BADGE -->
+        <div class="glass-card px-5 py-3.5 flex justify-between items-center text-xs">
+            <span id="ui-weight-label" class="text-stone-400 font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-weight-hanging text-amber-500"></i>
+                Загальна вага запасів:
+            </span>
+            <span id="weightDisplay" class="font-bold text-amber-400 text-sm">0 lbs</span>
         </div>
 
-        <div class="flex-between" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">
-            <span id="t-weight">Загальна вага запасу:</span>
-            <strong id="weightVal" style="color: var(--text-main);">0 lb</strong>
-        </div>
+        <!-- ENVIRONMENT & TRAVEL SETTINGS -->
+        <section class="glass-card p-5 space-y-4">
+            <h2 id="ui-env-title" class="text-sm font-fantasy font-bold text-amber-400 tracking-wider uppercase flex items-center gap-2">
+                <i class="fa-solid fa-cloud-sun-rain text-emerald-400"></i>
+                Погода та Пересування
+            </h2>
 
-        <button class="btn-main" onclick="advanceDay()" id="t-btn-next-day">Наступний день (Списати)</button>
-        <button class="btn-secondary" onclick="undo()" style="width:100%; margin-top:6px;" id="t-btn-undo">Скасувати останній день (Undo)</button>
-    </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- Weather Selection (No text in parentheses) -->
+                <div>
+                    <label id="ui-lbl-weather" class="text-[11px] text-stone-400 font-bold block mb-1 uppercase">Погода</label>
+                    <select id="weatherSelect" onchange="updateSettings()" class="glass-input w-full p-2.5 rounded-xl text-xs font-medium">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
 
-    <!-- ENVIRONMENT & PACE -->
-    <div class="card">
-        <div class="card-title" id="t-title-env">Погода та Пересування</div>
-        <div class="grid-2" style="margin-bottom: 8px;">
-            <div>
-                <label style="font-size:0.75rem; color:var(--text-muted);" id="t-lbl-weather">Погода</label>
-                <select id="weatherSelect" onchange="updateSettings()">
-                    <option value="sunny">Сонячна спека (2x Води)</option>
-                    <option value="rain">Звичайний дощ</option>
-                    <option value="heavy_rain">Тропічна злива (+Водозбір)</option>
+                <!-- Rain Catchers -->
+                <div>
+                    <label id="ui-lbl-catchers" class="text-[11px] text-stone-400 font-bold block mb-1 uppercase">Водозбірники (шт)</label>
+                    <input type="number" id="rainCatchers" value="0" min="0" onchange="updateSettings()" class="glass-input w-full p-2.5 rounded-xl text-xs font-medium">
+                </div>
+
+                <!-- Travel Pace (No text in parentheses) -->
+                <div>
+                    <label id="ui-lbl-pace" class="text-[11px] text-stone-400 font-bold block mb-1 uppercase">Темп Пересування</label>
+                    <select id="paceSelect" onchange="updateSettings()" class="glass-input w-full p-2.5 rounded-xl text-xs font-medium">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- PARTY ROSTER MANAGEMENT -->
+        <section class="glass-card p-5 space-y-4">
+            <div class="flex justify-between items-center border-b border-emerald-900/60 pb-3">
+                <h2 id="ui-roster-title" class="text-sm font-fantasy font-bold text-amber-400 tracking-wider uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-users text-amber-500"></i>
+                    Склад Загону
+                </h2>
+                <span id="rosterCountBadge" class="text-xs bg-emerald-950/80 border border-emerald-800 text-emerald-400 font-bold px-2.5 py-1 rounded-full">0</span>
+            </div>
+
+            <!-- Member List -->
+            <div id="rosterList" class="space-y-2.5">
+                <!-- Rendered dynamically -->
+            </div>
+
+            <!-- Add Member Form -->
+            <div class="pt-2 grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                <input type="text" id="memberName" placeholder="Ім'я / Назва" class="sm:col-span-5 glass-input p-2.5 rounded-xl text-xs">
+                <select id="memberType" class="sm:col-span-5 glass-input p-2.5 rounded-xl text-xs">
+                    <!-- Populated by JS with Independent / "Харчується сам" option -->
                 </select>
+                <button onclick="addMember()" class="sm:col-span-2 bg-emerald-600 hover:bg-emerald-500 text-stone-950 font-bold text-xs p-2.5 rounded-xl transition-all flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-plus"></i>
+                    <span id="ui-btn-add">Додати</span>
+                </button>
             </div>
-            <div>
-                <label style="font-size:0.75rem; color:var(--text-muted);" id="t-lbl-catchers">Водозбірники</label>
-                <input type="number" id="rainCatchers" value="0" min="0" onchange="updateSettings()">
+        </section>
+
+        <!-- WATER CONSUMPTION REFERENCE MEMO -->
+        <section class="glass-card p-5 space-y-3">
+            <h2 id="ui-memo-title" class="text-xs font-fantasy font-bold text-amber-400 tracking-wider uppercase flex items-center gap-2">
+                <i class="fa-solid fa-book-bookmark text-sky-400"></i>
+                Міні-Пам'ятка Споживання Води (D&D 5e)
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                <div class="bg-jungle-950/60 p-3 rounded-xl border border-emerald-900/40 flex justify-between items-center">
+                    <span id="ui-memo-sm" class="text-stone-300 font-medium">Малі та Середні (Small & Medium):</span>
+                    <span class="font-bold text-sky-400" id="ui-memo-val-sm">1 галон / день</span>
+                </div>
+                <div class="bg-jungle-950/60 p-3 rounded-xl border border-emerald-900/40 flex justify-between items-center">
+                    <span id="ui-memo-lg" class="text-stone-300 font-medium">Великі істоти (Large):</span>
+                    <span class="font-bold text-sky-400" id="ui-memo-val-lg">4 галони / день</span>
+                </div>
+                <div class="bg-jungle-950/60 p-3 rounded-xl border border-emerald-900/40 flex justify-between items-center">
+                    <span id="ui-memo-hg" class="text-stone-300 font-medium">Величезні істоти (Huge):</span>
+                    <span class="font-bold text-sky-400" id="ui-memo-val-hg">16 галонів / день</span>
+                </div>
+                <div class="bg-jungle-950/60 p-3 rounded-xl border border-emerald-900/40 flex justify-between items-center">
+                    <span id="ui-memo-gg" class="text-stone-300 font-medium">Велетенські істоти (Gargantuan):</span>
+                    <span class="font-bold text-sky-400" id="ui-memo-val-gg">64 галони / день</span>
+                </div>
             </div>
-        </div>
-        <div>
-            <label style="font-size:0.75rem; color:var(--text-muted);" id="t-lbl-pace">Темп пересування</label>
-            <select id="paceSelect" onchange="updateSettings()">
-                <option value="normal">Нормальний (1 гекс/день)</option>
-                <option value="fast">Швидкий (-5 Пасивна увага)</option>
-                <option value="slow">Повільний (Прихований/Search)</option>
-            </select>
-        </div>
-    </div>
+        </section>
 
-    <!-- PARTY ROSTER -->
-    <div class="card">
-        <div class="card-title">
-            <span id="t-title-roster">Склад Загону</span>
-            <span id="rosterCount" style="font-size:0.8rem; color:var(--text-muted);">0 чол.</span>
-        </div>
-        
-        <ul class="roster-list" id="rosterList"></ul>
+    </main>
 
-        <div style="display:grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 6px;">
-            <input type="text" id="memberName" placeholder="Ім'я / Назва">
-            <select id="memberType">
-                <option value="player">Гравець (1x)</option>
-                <option value="guide">Гід / NPC (1x)</option>
-                <option value="dino_small">Динозавр малий (2x)</option>
-                <option value="dino_large">Трицератопс/В'ючний (4x)</option>
-            </select>
-            <button class="btn-secondary" onclick="addMember()" id="t-btn-add">+ Додати</button>
-        </div>
-    </div>
+    <!-- Footer -->
+    <footer class="mt-8 text-center text-[11px] text-stone-500 font-medium">
+        Tomb of Annihilation — Chult Expedition Helper • Offline-First LocalStorage
+    </footer>
 
-    <!-- LOG -->
-    <div class="card">
-        <div class="card-title" id="t-title-log">Журнал подій</div>
-        <div class="log-box" id="logBox"></div>
-    </div>
-
+    <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Multiplier mapping for resource consumption
         const MULTIPLIERS = {
             player: 1,
-            guide: 1,
             dino_small: 2,
-            dino_large: 4
+            dino_large: 4,
+            self: 0 // "Харчується сам" / "Can handle himself"
         };
 
+        // Translations Dictionary
         const TRANSLATIONS = {
             uk: {
-                day: "День",
-                food: "Їжа (Раціони)",
-                water: "Вода (Галони)",
-                weight: "Загальна вага запасу:",
-                btnNextDay: "Наступний день (Списати)",
-                btnUndo: "Скасувати останній день (Undo)",
-                titleEnv: "Погода та Пересування",
+                subtitle: "ТРЕКЕР ЕКСПЕДИЦІЇ ЧУЛТУ",
+                currentDayLabel: "Поточний День",
+                dayCountSuffix: "днів у джунглях",
+                btnAdvance: "НАСТУПНИЙ ДЕНЬ",
+                needFood: "Потреба їжі:",
+                needWater: "Потреба води:",
+                foodTitle: "Сухі Раціони",
+                waterTitle: "Питна Вода (Галони)",
+                weightLabel: "Загальна вага запасів:",
+                envTitle: "Погода та Пересування",
                 lblWeather: "Погода",
                 lblCatchers: "Водозбірники (шт)",
-                lblPace: "Темп пересування",
-                titleRoster: "Склад Загону",
-                btnAdd: "+ Додати",
-                titleLog: "Журнал подій",
-                weatherSunny: "Сонячна спека (2x Води)",
-                weatherRain: "Звичайний дощ",
-                weatherHeavy: "Тропічна злива (+Водозбір)",
-                paceNormal: "Нормальний (1 гекс/день)",
-                paceFast: "Швидкий (-5 Пасивна увага)",
-                paceSlow: "Повільний (Прихований/Search)",
-                optPlayer: "Гравець (1x)",
-                optGuide: "Гід / NPC (1x)",
-                optDinoSmall: "Динозавр малий (2x)",
-                optDinoLarge: "Трицератопс/В'ючний (4x)",
+                lblPace: "Темп Пересування",
+                rosterTitle: "Склад Загону",
+                btnAdd: "Додати",
                 placeholderName: "Ім'я / Назва",
-                badgeSunny: "Сонячно",
-                badgeRain: "Дощ",
-                badgeHeavy: "Злива",
-                logStart: "Запуск трекера Чулту.",
-                logAdvance: "День {day}: Списано {food} їжі, {water} води.",
-                logRainBonus: "Водозбірники зібрали +{water} гал. води!",
-                logWarnFood: "УВАГА: Не вистачило їжі!",
-                logWarnWater: "УВАГА: Не вистачило води! Кидайте Виснаження.",
-                logUndo: "Дію скасовано. Повернуто День {day}."
+                
+                // Weather Options (Cleaned up, no parenthetical hints)
+                weatherSunny: "Сонячна спека",
+                weatherRain: "Звичайний дощ",
+                weatherHeavy: "Тропічна злива",
+
+                // Pace Options (Cleaned up)
+                paceNormal: "Нормальний",
+                paceFast: "Швидкий",
+                paceSlow: "Повільний",
+
+                // Roster Options
+                optPlayer: "Гравець / Гід (1x)",
+                optDinoSmall: "Малий Динозавр (2x)",
+                optDinoLarge: "Великий / В'ючний (4x)",
+                optSelf: "Харчується сам (0x)",
+
+                // Memo
+                memoTitle: "Міні-Пам'ятка Споживання Води (D&D 5e)",
+                memoSm: "Малі та Середні (Small & Medium):",
+                memoValSm: "1 галон / день",
+                memoLg: "Великі істоти (Large):",
+                memoValLg: "4 галони / день",
+                memoHg: "Величезні істоти (Huge):",
+                memoValHg: "16 галонів / день",
+                memoGg: "Велетенські істоти (Gargantuan):",
+                memoValGg: "64 галони / день",
+
+                // Roster labels
+                rateSelf: "Харчується сам",
+                rateNormal: "споживання"
             },
             en: {
-                day: "Day",
-                food: "Food (Rations)",
-                water: "Water (Gallons)",
-                weight: "Total Supply Weight:",
-                btnNextDay: "Advance Day (Consume)",
-                btnUndo: "Undo Last Day",
-                titleEnv: "Environment & Travel",
+                subtitle: "CHULT EXPEDITION TRACKER",
+                currentDayLabel: "Current Day",
+                dayCountSuffix: "days in jungle",
+                btnAdvance: "ADVANCE DAY",
+                needFood: "Daily Food Need:",
+                needWater: "Daily Water Need:",
+                foodTitle: "Rations (Food)",
+                waterTitle: "Clean Water (Gallons)",
+                weightLabel: "Total Supply Weight:",
+                envTitle: "Environment & Travel",
                 lblWeather: "Weather",
                 lblCatchers: "Rain Catchers (qty)",
                 lblPace: "Travel Pace",
-                titleRoster: "Party Roster",
-                btnAdd: "+ Add",
-                titleLog: "Event Log",
-                weatherSunny: "Sunny Heat (2x Water)",
-                weatherRain: "Normal Rain",
-                weatherHeavy: "Downpour (+Catchers)",
-                paceNormal: "Normal (1 hex/day)",
-                paceFast: "Fast (-5 Passive Perception)",
-                paceSlow: "Slow (Stealth/Search)",
-                optPlayer: "Player (1x)",
-                optGuide: "Guide / NPC (1x)",
-                optDinoSmall: "Small Dino (2x)",
-                optDinoLarge: "Pack Triceratops (4x)",
+                rosterTitle: "Party Roster",
+                btnAdd: "Add",
                 placeholderName: "Name / Unit",
-                badgeSunny: "Sunny",
-                badgeRain: "Rain",
-                badgeHeavy: "Downpour",
-                logStart: "Chult Tracker initialized.",
-                logAdvance: "Day {day}: Consumed {food} food, {water} water.",
-                logRainBonus: "Rain Catchers collected +{water} gal. of water!",
-                logWarnFood: "WARNING: Out of food!",
-                logWarnWater: "WARNING: Out of water! Roll Exhaustion.",
-                logUndo: "Action undone. Reverted to Day {day}."
+                
+                // Weather Options
+                weatherSunny: "Sunny Heat",
+                weatherRain: "Normal Rain",
+                weatherHeavy: "Downpour",
+
+                // Pace Options
+                paceNormal: "Normal",
+                paceFast: "Fast",
+                paceSlow: "Slow",
+
+                // Roster Options
+                optPlayer: "Player / Guide (1x)",
+                optDinoSmall: "Small Dinosaur (2x)",
+                optDinoLarge: "Large / Pack Dino (4x)",
+                optSelf: "Can handle himself (0x)",
+
+                // Memo
+                memoTitle: "Water Consumption Reference (D&D 5e)",
+                memoSm: "Small & Medium (S/M):",
+                memoValSm: "1 gal / day",
+                memoLg: "Large creatures (L):",
+                memoValLg: "4 gal / day",
+                memoHg: "Huge creatures (H):",
+                memoValHg: "16 gal / day",
+                memoGg: "Gargantuan (G):",
+                memoValGg: "64 gal / day",
+
+                // Roster labels
+                rateSelf: "Can handle himself",
+                rateNormal: "consumption"
             }
         };
 
+        // State Schema
         let state = {
-            lang: localStorage.getItem('toa_lang') || 'uk',
+            lang: 'uk',
             day: 1,
             food: 20,
             water: 30,
             weather: 'sunny',
-            rainCatchers: 0,
+            rainCatchers: 1,
             pace: 'normal',
             roster: [
-                { id: 1, name: "Гравець 1", type: "player" },
-                { id: 2, name: "В'ючний Динозавр", type: "dino_large" }
-            ],
-            logs: []
+                { id: '1', name: "Персонаж 1", type: "player" },
+                { id: '2', name: "Гід Чулту", type: "self" },
+                { id: '3', name: "Трицератопс", type: "dino_large" }
+            ]
         };
 
+        // History Stack for Undo
         let historyStack = [];
 
+        // Save current state to LocalStorage
         function saveState() {
-            localStorage.setItem('toa_state', JSON.stringify(state));
-            localStorage.setItem('toa_lang', state.lang);
+            localStorage.setItem('toa_chult_v2_state', JSON.stringify(state));
+            render();
         }
 
+        // Push snapshot to history before modifications
         function pushHistory() {
             historyStack.push(JSON.stringify(state));
-            if (historyStack.length > 5) historyStack.shift();
+            if (historyStack.length > 10) historyStack.shift();
         }
 
+        // Load state from LocalStorage
         function loadState() {
-            const saved = localStorage.getItem('toa_state');
+            const saved = localStorage.getItem('toa_chult_v2_state');
             if (saved) {
-                try { state = JSON.parse(saved); } catch(e){}
-            }
-            if (!state.logs || state.logs.length === 0) {
-                state.logs = [TRANSLATIONS[state.lang].logStart];
+                try {
+                    state = Object.assign({}, state, JSON.parse(saved));
+                } catch(e) {
+                    console.error("Error loading saved state", e);
+                }
             }
         }
 
+        // Toggle UI Language
         function toggleLanguage() {
-            state.lang = state.lang === 'uk' ? 'en' : 'uk';
-            saveState();
-            render();
-        }
-
-        function addFood(val) {
             pushHistory();
-            state.food = Math.max(0, state.food + val);
+            state.lang = (state.lang === 'uk') ? 'en' : 'uk';
             saveState();
-            render();
         }
 
-        function addWater(val) {
+        // Quick resource increment / decrement
+        function changeResource(type, amount) {
             pushHistory();
-            state.water = Math.max(0, state.water + val);
+            state[type] = Math.max(0, (state[type] || 0) + amount);
             saveState();
-            render();
         }
 
+        // Add roster member
         function addMember() {
             const nameInput = document.getElementById('memberName');
             const typeSelect = document.getElementById('memberType');
             const name = nameInput.value.trim();
+
             if (!name) return;
 
             pushHistory();
             state.roster.push({
-                id: Date.now(),
+                id: Date.now().toString(),
                 name: name,
                 type: typeSelect.value
             });
+
             nameInput.value = '';
             saveState();
-            render();
         }
 
+        // Remove roster member
         function removeMember(id) {
             pushHistory();
             state.roster = state.roster.filter(m => m.id !== id);
             saveState();
-            render();
         }
 
+        // Update dropdowns & environmental settings
         function updateSettings() {
             state.weather = document.getElementById('weatherSelect').value;
             state.rainCatchers = parseInt(document.getElementById('rainCatchers').value) || 0;
             state.pace = document.getElementById('paceSelect').value;
             saveState();
-            render();
         }
 
+        // Advance Day Action
         function advanceDay() {
             pushHistory();
-            const t = TRANSLATIONS[state.lang];
-            let totalUnits = state.roster.reduce((sum, m) => sum + (MULTIPLIERS[m.type] || 1), 0);
-            
-            let foodNeeded = totalUnits * 1;
-            let waterMultiplier = state.weather === 'sunny' ? 2 : 1;
-            let waterNeeded = totalUnits * 1 * waterMultiplier;
 
-            state.food -= foodNeeded;
-            state.water -= waterNeeded;
+            let totalFoodUnits = 0;
+            let totalWaterUnits = 0;
 
-            let logMsg = t.logAdvance.replace('{day}', state.day).replace('{food}', foodNeeded).replace('{water}', waterNeeded);
-            state.logs.unshift(logMsg);
+            const heatMultiplier = (state.weather === 'sunny') ? 2 : 1;
 
+            state.roster.forEach(m => {
+                const baseMult = MULTIPLIERS[m.type] !== undefined ? MULTIPLIERS[m.type] : 1;
+                totalFoodUnits += baseMult;
+                totalWaterUnits += baseMult * heatMultiplier;
+            });
+
+            // Deduct rations & water
+            state.food = Math.max(0, state.food - totalFoodUnits);
+            state.water = Math.max(0, state.water - totalWaterUnits);
+
+            // Rain catchers collection during downpour
             if (state.weather === 'heavy_rain' && state.rainCatchers > 0) {
-                let collected = state.rainCatchers * 2;
-                state.water += collected;
-                state.logs.unshift(t.logRainBonus.replace('{water}', collected));
+                state.water += (state.rainCatchers * 4);
             }
 
-            if (state.food < 0) {
-                state.logs.unshift(t.logWarnFood);
-                state.food = 0;
-            }
-            if (state.water < 0) {
-                state.logs.unshift(t.logWarnWater);
-                state.water = 0;
-            }
-
-            state.day++;
+            state.day += 1;
             saveState();
-            render();
         }
 
-        function undo() {
+        // Undo Last Action
+        function undoLastDay() {
             if (historyStack.length === 0) return;
             const previous = historyStack.pop();
-            state = JSON.parse(previous);
-            const t = TRANSLATIONS[state.lang];
-            state.logs.unshift(t.logUndo.replace('{day}', state.day));
-            saveState();
-            render();
+            try {
+                state = JSON.parse(previous);
+                saveState();
+            } catch(e) {
+                console.error("Error undoing state", e);
+            }
         }
 
+        // Render UI
         function render() {
-            const t = TRANSLATIONS[state.lang];
-            document.getElementById('langBtn').innerText = state.lang === 'uk' ? 'EN' : 'UA';
+            const t = TRANSLATIONS[state.lang] || TRANSLATIONS.uk;
 
-            // Static Labels
-            document.getElementById('t-day').innerText = t.day;
-            document.getElementById('t-food').innerText = t.food;
-            document.getElementById('t-water').innerText = t.water;
-            document.getElementById('t-weight').innerText = t.weight;
-            document.getElementById('t-btn-next-day').innerText = t.btnNextDay;
-            document.getElementById('t-btn-undo').innerText = t.btnUndo;
-            document.getElementById('t-title-env').innerText = t.titleEnv;
-            document.getElementById('t-lbl-weather').innerText = t.lblWeather;
-            document.getElementById('t-lbl-catchers').innerText = t.lblCatchers;
-            document.getElementById('t-lbl-pace').innerText = t.lblPace;
-            document.getElementById('t-title-roster').innerText = t.titleRoster;
-            document.getElementById('t-btn-add').innerText = t.btnAdd;
-            document.getElementById('t-title-log').innerText = t.titleLog;
+            // Language Display Badge
+            document.getElementById('langDisplay').innerText = state.lang.toUpperCase();
 
-            // Values
-            document.getElementById('dayVal').innerText = state.day;
-            document.getElementById('foodVal').innerText = state.food;
-            document.getElementById('waterVal').innerText = state.water;
-
-            // Weight calculation (1 ration = 2lb, 1 gallon water = 8.35lb)
-            let totalWeight = Math.round((state.food * 2) + (state.water * 8.35));
-            document.getElementById('weightVal').innerText = `${totalWeight} lb`;
-
-            // Weather badge
-            const badge = document.getElementById('weatherBadge');
-            if (state.weather === 'sunny') {
-                badge.innerText = t.badgeSunny;
-                badge.style.background = 'var(--accent-gold)';
-            } else if (state.weather === 'rain') {
-                badge.innerText = t.badgeRain;
-                badge.style.background = 'var(--accent-blue)';
-            } else {
-                badge.innerText = t.badgeHeavy;
-                badge.style.background = '#0056b3';
-                badge.style.color = '#fff';
-            }
-
-            // Options translation
-            document.getElementById('weatherSelect').innerHTML = `
-                <option value="sunny" ${state.weather==='sunny'?'selected':''}>${t.weatherSunny}</option>
-                <option value="rain" ${state.weather==='rain'?'selected':''}>${t.weatherRain}</option>
-                <option value="heavy_rain" ${state.weather==='heavy_rain'?'selected':''}>${t.weatherHeavy}</option>
-            `;
-            document.getElementById('paceSelect').innerHTML = `
-                <option value="normal" ${state.pace==='normal'?'selected':''}>${t.paceNormal}</option>
-                <option value="fast" ${state.pace==='fast'?'selected':''}>${t.paceFast}</option>
-                <option value="slow" ${state.pace==='slow'?'selected':''}>${t.paceSlow}</option>
-            `;
-            document.getElementById('memberType').innerHTML = `
-                <option value="player">${t.optPlayer}</option>
-                <option value="guide">${t.optGuide}</option>
-                <option value="dino_small">${t.optDinoSmall}</option>
-                <option value="dino_large">${t.optDinoLarge}</option>
-            `;
+            // Text Labels
+            document.getElementById('ui-subtitle').innerText = t.subtitle;
+            document.getElementById('ui-current-day-label').innerText = t.currentDayLabel;
+            document.getElementById('ui-day-count-suffix').innerText = t.dayCountSuffix;
+            document.getElementById('ui-btn-advance').innerText = t.btnAdvance;
+            document.getElementById('ui-need-food').innerText = t.needFood;
+            document.getElementById('ui-need-water').innerText = t.needWater;
+            document.getElementById('ui-food-title').innerText = t.foodTitle;
+            document.getElementById('ui-water-title').innerText = t.waterTitle;
+            document.getElementById('ui-weight-label').innerHTML = `<i class="fa-solid fa-weight-hanging text-amber-500 mr-1.5"></i> ${t.weightLabel}`;
+            document.getElementById('ui-env-title').innerHTML = `<i class="fa-solid fa-cloud-sun-rain text-emerald-400"></i> ${t.envTitle}`;
+            document.getElementById('ui-lbl-weather').innerText = t.lblWeather;
+            document.getElementById('ui-lbl-catchers').innerText = t.lblCatchers;
+            document.getElementById('ui-lbl-pace').innerText = t.lblPace;
+            document.getElementById('ui-roster-title').innerHTML = `<i class="fa-solid fa-users text-amber-500"></i> ${t.rosterTitle}`;
+            document.getElementById('ui-btn-add').innerText = t.btnAdd;
             document.getElementById('memberName').placeholder = t.placeholderName;
+
+            // Memo Labels
+            document.getElementById('ui-memo-title').innerHTML = `<i class="fa-solid fa-book-bookmark text-sky-400"></i> ${t.memoTitle}`;
+            document.getElementById('ui-memo-sm').innerText = t.memoSm;
+            document.getElementById('ui-memo-val-sm').innerText = t.memoValSm;
+            document.getElementById('ui-memo-lg').innerText = t.memoLg;
+            document.getElementById('ui-memo-val-lg').innerText = t.memoValLg;
+            document.getElementById('ui-memo-hg').innerText = t.memoHg;
+            document.getElementById('ui-memo-val-hg').innerText = t.memoValHg;
+            document.getElementById('ui-memo-gg').innerText = t.memoGg;
+            document.getElementById('ui-memo-val-gg').innerText = t.memoValGg;
+
+            // Values Display
+            document.getElementById('dayDisplay').innerText = state.day;
+            document.getElementById('foodDisplay').innerText = state.food;
+            document.getElementById('waterDisplay').innerText = state.water;
+
+            // Calculate Daily Needs
+            let foodNeed = 0;
+            let waterNeed = 0;
+            const heatMultiplier = (state.weather === 'sunny') ? 2 : 1;
+
+            state.roster.forEach(m => {
+                const mult = MULTIPLIERS[m.type] !== undefined ? MULTIPLIERS[m.type] : 1;
+                foodNeed += mult;
+                waterNeed += mult * heatMultiplier;
+            });
+
+            document.getElementById('dailyFoodNeed').innerText = `${foodNeed} шт`;
+            document.getElementById('dailyWaterNeed').innerText = `${waterNeed} гал`;
+
+            // Calculate Total Supply Weight (Food = 2 lbs, Water = 8.35 lbs)
+            const totalWeight = Math.round((state.food * 2) + (state.water * 8.35));
+            document.getElementById('weightDisplay').innerText = `${totalWeight} lbs`;
+
+            // Weather Dropdown (Clean, no text in parentheses)
+            document.getElementById('weatherSelect').innerHTML = `
+                <option value="sunny" ${state.weather === 'sunny' ? 'selected' : ''}>${t.weatherSunny}</option>
+                <option value="rain" ${state.weather === 'rain' ? 'selected' : ''}>${t.weatherRain}</option>
+                <option value="heavy_rain" ${state.weather === 'heavy_rain' ? 'selected' : ''}>${t.weatherHeavy}</option>
+            `;
+
             document.getElementById('rainCatchers').value = state.rainCatchers;
 
-            // Roster list
-            const rosterList = document.getElementById('rosterList');
-            rosterList.innerHTML = '';
-            state.roster.forEach(m => {
-                let li = document.createElement('li');
-                li.className = 'roster-item';
-                li.innerHTML = `
-                    <div class="roster-info">
-                        <strong>${m.name}</strong>
-                        <small>${MULTIPLIERS[m.type] || 1}x споживання</small>
-                    </div>
-                    <button class="btn-del" onclick="removeMember(${m.id})">✕</button>
-                `;
-                rosterList.appendChild(li);
-            });
-            document.getElementById('rosterCount').innerText = `${state.roster.length} units`;
+            // Pace Dropdown (Clean)
+            document.getElementById('paceSelect').innerHTML = `
+                <option value="normal" ${state.pace === 'normal' ? 'selected' : ''}>${t.paceNormal}</option>
+                <option value="fast" ${state.pace === 'fast' ? 'selected' : ''}>${t.paceFast}</option>
+                <option value="slow" ${state.pace === 'slow' ? 'selected' : ''}>${t.paceSlow}</option>
+            `;
 
-            // Logs
-            const logBox = document.getElementById('logBox');
-            logBox.innerHTML = state.logs.map(l => `<div class="log-entry">${l}</div>`).join('');
+            // Member Type Select Dropdown (includes Independent option)
+            document.getElementById('memberType').innerHTML = `
+                <option value="player">${t.optPlayer}</option>
+                <option value="dino_small">${t.optDinoSmall}</option>
+                <option value="dino_large">${t.optDinoLarge}</option>
+                <option value="self">${t.optSelf}</option>
+            `;
+
+            // Render Roster List
+            const rosterContainer = document.getElementById('rosterList');
+            rosterContainer.innerHTML = '';
+
+            state.roster.forEach(m => {
+                const mult = MULTIPLIERS[m.type] !== undefined ? MULTIPLIERS[m.type] : 1;
+                const card = document.createElement('div');
+                card.className = "bg-jungle-950/70 border border-emerald-900/50 p-3 rounded-xl flex items-center justify-between hover:border-amber-500/40 transition-all";
+
+                let iconClass = "fa-user text-emerald-400";
+                if (m.type === 'dino_small') iconClass = "fa-paw text-amber-400";
+                if (m.type === 'dino_large') iconClass = "fa-dragon text-amber-500";
+                if (m.type === 'self') iconClass = "fa-shield-halved text-sky-400";
+
+                let rateText = `${mult}x ${t.rateNormal}`;
+                if (m.type === 'self') {
+                    rateText = `0x (${t.rateSelf})`;
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-800/80 flex items-center justify-center text-xs">
+                            <i class="fa-solid ${iconClass}"></i>
+                        </div>
+                        <div>
+                            <div class="text-xs font-bold text-stone-200">${m.name}</div>
+                            <div class="text-[10px] text-stone-400 font-medium">${rateText}</div>
+                        </div>
+                    </div>
+                    <button onclick="removeMember('${m.id}')" class="text-stone-500 hover:text-red-400 p-1.5 transition-colors text-xs">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                `;
+                rosterContainer.appendChild(card);
+            });
+
+            document.getElementById('rosterCountBadge').innerText = `${state.roster.length}`;
         }
 
-        // Init
-        loadState();
-        render();
+        // Initialize App
+        window.onload = function() {
+            loadState();
+            render();
+        };
     </script>
 </body>
 </html>
